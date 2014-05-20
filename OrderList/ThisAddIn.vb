@@ -1,18 +1,18 @@
 ﻿Imports Microsoft.Office.Interop.Excel
+Imports Microsoft.Office.Core
 
 Public Class ThisAddIn
 
     Private Sub ThisAddIn_Startup(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Startup
 
-        makeOrderList()
+
     End Sub
 
     Private Sub ThisAddIn_Shutdown(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Shutdown
 
     End Sub
 
-
-    Private Sub makeOrderList()
+    Sub makeOrderList()
         Dim listWorkbook As Workbook
         Dim listWorksheet As Worksheet
         Dim listRange As Range
@@ -110,16 +110,17 @@ Public Class ThisAddIn
         With combineRange
             .Value = data
             '调整格式
-            .VerticalAlignment = XlVAlign.xlVAlignCenter
+            .VerticalAlignment = Excel.XlVAlign.xlVAlignCenter
             .Rows.AutoFit()
             firstCol = .Columns(1)
         End With
 
         With firstCol
-            .HorizontalAlignment = XlHAlign.xlHAlignCenter
+            .HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter
             .Font.Name = "Arial"
             .ColumnWidth = 4
         End With
 
     End Sub
+    
 End Class
