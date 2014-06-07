@@ -23,7 +23,8 @@ Public Class ThisAddIn
 
 
         For Each listWorksheet In listWorkbook.Worksheets
-            lastRow = listWorksheet.Range("print_area").Rows.Count
+            listRange = detectRange(listWorksheet)
+            lastRow = listRange.Rows.Count
             Select Case listWorksheet.Name
                 Case "设备清单"
 
@@ -70,9 +71,17 @@ Public Class ThisAddIn
         Dim lastRow As Range
 
         For i = 1 To UBound(data, 1)
-            If data(i, 1) <> "" Then                            '跳过空值
+            If data(i, 1) IsNot Nothing And data(i, 1) <> "" Then                            '跳过空值
                 data(i, code) = data(i, 1)
+
                 For j = UBound(data, 1) To i + 1 Step -1
+                    '避免空值错误
+                    If data(i, criteria(0)) Is Nothing Then data(i, criteria(0)) = ""
+                    If data(i, criteria(1)) Is Nothing Then data(i, criteria(1)) = ""
+                    If data(j, criteria(0)) Is Nothing Then data(j, criteria(0)) = ""
+                    If data(j, criteria(1)) Is Nothing Then data(j, criteria(1)) = ""
+                    '比较关键值
+
                     If data(i, criteria(0)).ToString = data(j, criteria(0)).ToString _
                     And data(i, criteria(1)).ToString = data(j, criteria(1)).ToString Then
                         counter = counter + 1
@@ -83,7 +92,7 @@ Public Class ThisAddIn
                         blankCounter = blankCounter + 1
                     End If
                 Next
-                If data(i, criteria(0)) <> "" Then data(i, 1) = counter
+                If data(i, criteria(0)).ToString <> "" Then data(i, 1) = counter
                 counter = 1
             End If
         Next
@@ -122,5 +131,41 @@ Public Class ThisAddIn
         End With
 
     End Sub
+
+    Function detectRange(ByVal listWorksheet As Worksheet) As Range
+
+        Dim rowNum As Integer = 8
+        Dim colNum As Integer = 0
+        Dim cell1 As Range = listWorksheet.Cells(1, 1)
+        Dim cell2 As Range
+        Dim value As String = "xxx"
+
+        Do Until value = ""
+            If listWorksheet.Cells(8, colNum + 1).value Is Nothing Then
+                value = ""
+            Else
+                value = listWorksheet.Cells(8, colNum + 1).value.ToString
+            End If
+            colNum = colNum + 1
+        Loop
+
+        value = "xxx"
+
+        Do Until value = ""
+            If listWorksheet.Cells(rowNum + 1, 1).value Is Nothing Then
+                value = ""
+            Else
+                listWorksheet.Cells(rowNum + 1, 1).value.ToString()
+            End If
+            rowNum = rowNum + 1
+        Loop
+
+        If rowNum > 9 And colNum > 1 Then
+            cell2 = listWorksheet.Cells(rowNum - 1, colNum - 1)
+        Else
+            cell2 = listWorksheet.Cells(8, 1)
+        End If
+        Return listWorksheet.Range(cell1, cell2)
+    End Function
     
 End Class
