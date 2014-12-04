@@ -1,5 +1,6 @@
 ﻿Imports Microsoft.Office.Interop.Excel
 Imports Microsoft.Office.Core
+Imports System.String
 
 Public Class ThisAddIn
 
@@ -46,11 +47,12 @@ Public Class ThisAddIn
                     Next
                     combine(listRange, "DE", "L")
                     listWorksheet.Columns(2).delete()
-                    listWorksheet.Range("K:K").WrapText = True
+                    listWorksheet.Range("L:L").WrapText = True
                 Case "阀门清单"
                     listRange = listWorksheet.Range("A9:H" & CStr(lastRow))
                     listWorksheet.Range("A8").Value = "数量"
-                    combine(listRange, "BC", "H")
+                    listRange.Sort(listRange.Range("B1"), XlSortOrder.xlAscending, listRange.Range("C1"), , XlSortOrder.xlAscending, listRange.Range("E1"), XlSortOrder.xlAscending, XlYesNoGuess.xlNo, , , XlSortOrientation.xlSortColumns)
+                    combine1(listRange, "BCE", "H")
                     listWorksheet.Range("H:H").WrapText = True
 
             End Select
@@ -59,6 +61,7 @@ Public Class ThisAddIn
         Next
     End Sub
 
+    'combineRange为需要合并的单元区域，criteriaCol为合并条件列，codeCol为PID编号存储列
     Sub combine(ByRef combineRange As Range, ByVal criteriaCol As String, ByVal codeCol As String)
         Dim data(,) As Object = combineRange.Value
         Dim criteria() As Integer = {Asc(Left(criteriaCol, 1)) - 64, Asc(Right(criteriaCol, 1)) - 64}
@@ -129,6 +132,85 @@ Public Class ThisAddIn
             .Font.Name = "Arial"
             .ColumnWidth = 4
         End With
+
+    End Sub
+
+    Sub combine1(ByVal combineRange As Range, ByVal criterialCol As String, ByVal codeCol As String)
+
+        Dim startRow As Integer = 1
+        Dim endRow As Integer = 2
+
+
+
+        Do While startRow < combineRange.Rows.Count
+            Dim indicator As Boolean = True
+            Dim PIDcode As String = ""
+            '将备注和PID号的内容赋给PIDcode
+            If Not (combineRange.Range(codeCol & startRow.ToString).Value Is Nothing) Then
+                PIDcode = combineRange.Range(codeCol & startRow.ToString).Value.ToString
+            End If
+
+            If Not (combineRange.Range("A" & startRow.ToString).Value Is Nothing) Then
+
+                If PIDcode <> "" Then
+                    PIDcode = PIDcode & "," & combineRange.Range("A" & startRow.ToString).Value.ToString
+                Else
+                    PIDcode = combineRange.Range("A" & startRow.ToString).Value.ToString
+                End If
+
+            End If
+
+                '逐行判断关键数据是否相同，如相同则判断下一行，否则跳出循环并将行指针退回一行。
+            Do While indicator
+
+                For i = 1 To criterialCol.Length
+                    Dim colName As String = Mid(criterialCol, i, 1)
+
+                    Dim startValue As String = ""
+                    Dim nextValue As String = ""
+
+                    If Not (combineRange.Range(colName & startRow.ToString).Value2 Is Nothing) Then
+                        startValue = combineRange.Range(colName & startRow.ToString).Value.ToString
+                    End If
+
+                    If Not (combineRange.Range(colName & endRow.ToString).Value2 Is Nothing) Then
+                        nextValue = combineRange.Range(colName & endRow.ToString).Value.ToString
+                    End If
+
+                    If startValue <> nextValue Then
+
+                        indicator = False
+                        Exit For
+
+                    End If
+                Next
+
+                If indicator = True Then
+
+                    If Not (combineRange.Range("A" & endRow.ToString).Value Is Nothing) Then
+                        PIDcode = PIDcode & "," & combineRange.Range("A" & endRow.ToString).Value.ToString
+                    End If
+                    endRow = endRow + 1
+                Else
+                    endRow = endRow - 1
+                End If
+            Loop
+
+            '将PID编号移到codeCol，计数
+            combineRange.Range(codeCol & startRow.ToString).Value = PIDcode
+            combineRange.Range("A" & startRow.ToString).Value = endRow - startRow + 1
+            startRow = startRow + 1
+            '删除重复行
+            If endRow >= startRow Then
+                With combineRange
+                    .Range(.Cells(startRow, 1), .Cells(endRow, .Columns.Count)).Delete(XlDeleteShiftDirection.xlShiftUp)
+                End With
+
+            End If
+            endRow = startRow + 1
+            If endRow > (combineRange.Rows.Count + 1) Then Exit Do
+
+        Loop
 
     End Sub
 
