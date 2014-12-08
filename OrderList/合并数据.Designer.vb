@@ -66,7 +66,7 @@
         Me.count.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge
         Me.count.Image = Global.OrderList.My.Resources.Resources.logo图
         Me.count.ImageName = "AWSlogo"
-        Me.count.Label = "统计数量"
+        Me.count.Label = "PID清单统计"
         Me.count.Name = "count"
         Me.count.ShowImage = True
         '

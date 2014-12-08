@@ -21,42 +21,89 @@ Public Class ThisAddIn
 
         Dim lastRow As Integer
         Dim i As Integer
-
-
         For Each listWorksheet In listWorkbook.Worksheets
             listRange = detectRange(listWorksheet)
             lastRow = listRange.Rows.Count
-            Select Case listWorksheet.Name
-                Case "设备清单"
 
-                    listRange = listWorksheet.Range("A9:J" & CStr(lastRow))
-                    listWorksheet.Range("A8").Value = "数量"
-                    listWorksheet.Range("F8").Value = "编号"
-                    combine(listRange, "C", "F")
-                    listWorksheet.Range("F:F").WrapText = True
+            '如未经整理则进行合并和格式调整。如已经整理则提示用户。
+            If listWorksheet.Range("A8").Value = Nothing Then Exit For
 
-                Case "仪表清单"
-                    listRange = listWorksheet.Range("A9:L" & CStr(lastRow))
-                    listWorksheet.Range("A8").Value = "数量"
-                    listWorksheet.Range("L8").Value = "编号"
-                    For i = 9 To lastRow
-                        If listWorksheet.Range("A9").Value <> "" Then
-                            listWorksheet.Range("A" & i.ToString).Value = listWorksheet.Range("A" & i.ToString).Value.ToString _
-                                                                        & listWorksheet.Range("B" & i.ToString).Value.ToString
-                        End If
-                    Next
-                    combine(listRange, "DE", "L")
-                    listWorksheet.Columns(2).delete()
-                    listWorksheet.Range("L:L").WrapText = True
-                Case "阀门清单"
-                    listRange = listWorksheet.Range("A9:H" & CStr(lastRow))
-                    listWorksheet.Range("A8").Value = "数量"
-                    listRange.Sort(listRange.Range("B1"), XlSortOrder.xlAscending, listRange.Range("C1"), , XlSortOrder.xlAscending, listRange.Range("E1"), XlSortOrder.xlAscending, XlYesNoGuess.xlNo, , , XlSortOrientation.xlSortColumns)
-                    combine1(listRange, "BCE", "H")
-                    listWorksheet.Range("H:H").WrapText = True
+            If listWorksheet.Range("A8").Value.ToString <> "数量" Then
 
-            End Select
+                '格式化第一列
+                Dim firstCol As Range = listWorksheet.Columns(1)
+                With firstCol
+                    .HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter
+                    .Font.Name = "Arial"
+                    .ColumnWidth = 4
+                End With
 
+                Select Case listWorksheet.Name
+
+                    Case "设备清单"
+                        listRange = listWorksheet.Range("A9:J" & CStr(lastRow))
+                        listWorksheet.Range("A8").Value = "数量"
+                        listWorksheet.Range("F8").Value = "编号"
+                        listRange.Sort(listRange.Range("C1"), XlSortOrder.xlDescending, , , , , , _
+                                       XlYesNoGuess.xlNo, , , XlSortOrientation.xlSortColumns)
+                        combine1(listRange, "C", "F")
+                        With listWorksheet.Range("F:F")
+                            .WrapText = True
+                            .ColumnWidth = 15
+                            .Font.Name = "Arial"
+                        End With
+                        listWorksheet.Range("B:B").ColumnWidth = 23
+                        listWorksheet.PageSetup.PrintArea = listRange.Address & "," & "A1:J9"
+
+
+                    Case "仪表清单"
+                        listRange = listWorksheet.Range("A9:L" & CStr(lastRow))
+                        listWorksheet.Range("A8").Value = "数量"
+                        listWorksheet.Range("L8").Value = "编号"
+                        For i = 9 To lastRow
+                            If listWorksheet.Range("A9").Value.ToString <> "" Then
+                                listWorksheet.Range("A" & i.ToString).Value = listWorksheet.Range("A" & i.ToString).Value.ToString _
+                                                                            & listWorksheet.Range("B" & i.ToString).Value.ToString
+                            End If
+                        Next
+                        listRange.Sort(listRange.Range("D1"), XlSortOrder.xlDescending, _
+                                       listRange.Range("E1"), , XlSortOrder.xlDescending, , , _
+                                       XlYesNoGuess.xlNo, , , XlSortOrientation.xlSortColumns)
+                        combine1(listRange, "DE", "L")
+                        listWorksheet.Columns(2).delete()
+                        With listWorksheet.Range("K:K")
+                            .WrapText = True
+                            .ColumnWidth = 15
+                        End With
+                        listWorksheet.Range("B:B").ColumnWidth = 25
+
+
+                    Case "阀门清单"
+                        listRange = listWorksheet.Range("A9:H" & CStr(lastRow))
+                        listWorksheet.Range("A8").Value = "数量"
+                        listRange.Sort(listRange.Range("B1"), XlSortOrder.xlAscending, _
+                                       listRange.Range("C1"), , XlSortOrder.xlAscending, _
+                                       listRange.Range("E1"), XlSortOrder.xlAscending, _
+                                       XlYesNoGuess.xlNo, , , XlSortOrientation.xlSortColumns)
+                        combine1(listRange, "BCE", "H")
+                        With listWorksheet.Range("H:H")
+                            .WrapText = True
+                            .ColumnWidth = 13
+                        End With
+                        listWorksheet.Range("B:B").ColumnWidth = 21
+
+                        listWorksheet.Range("B6:B7").Value = listWorksheet.Range("A6:A7").Value
+                        listWorksheet.Range("A6:A7").Value = ""
+                        listWorksheet.Range("E6:E7").Value = listWorksheet.Range("C6:C7").Value
+                        listWorksheet.Range("C6:C7").Value = ""
+                End Select
+                listRange.Rows.AutoFit()
+                listRange.VerticalAlignment = Excel.XlVAlign.xlVAlignCenter
+
+            Else
+                MsgBox("本表已经过合并整理，无需再合并！", MsgBoxStyle.Information)
+                Exit Sub
+            End If
 
         Next
     End Sub
@@ -140,9 +187,7 @@ Public Class ThisAddIn
         Dim startRow As Integer = 1
         Dim endRow As Integer = 2
 
-
-
-        Do While startRow < combineRange.Rows.Count
+        Do While startRow <= combineRange.Rows.Count
             Dim indicator As Boolean = True
             Dim PIDcode As String = ""
             '将备注和PID号的内容赋给PIDcode
@@ -153,14 +198,14 @@ Public Class ThisAddIn
             If Not (combineRange.Range("A" & startRow.ToString).Value Is Nothing) Then
 
                 If PIDcode <> "" Then
-                    PIDcode = PIDcode & "," & combineRange.Range("A" & startRow.ToString).Value.ToString
+                    PIDcode = PIDcode & vbLf & combineRange.Range("A" & startRow.ToString).Value.ToString
                 Else
                     PIDcode = combineRange.Range("A" & startRow.ToString).Value.ToString
                 End If
 
             End If
 
-                '逐行判断关键数据是否相同，如相同则判断下一行，否则跳出循环并将行指针退回一行。
+            '逐行判断关键数据是否相同，如相同则判断下一行，否则跳出循环并将行指针退回一行。
             Do While indicator
 
                 For i = 1 To criterialCol.Length
@@ -176,19 +221,24 @@ Public Class ThisAddIn
                     If Not (combineRange.Range(colName & endRow.ToString).Value2 Is Nothing) Then
                         nextValue = combineRange.Range(colName & endRow.ToString).Value.ToString
                     End If
-
-                    If startValue <> nextValue Then
-
+                    '如果判断数据为空则向下进行比较，对该条记录不予合并。
+                    If startValue = "" Or nextValue = "" Then
                         indicator = False
-                        Exit For
+                    Else
 
+                        If startValue <> nextValue Then
+                            indicator = False
+                            Exit For
+
+                        End If
                     End If
+
                 Next
 
                 If indicator = True Then
 
                     If Not (combineRange.Range("A" & endRow.ToString).Value Is Nothing) Then
-                        PIDcode = PIDcode & "," & combineRange.Range("A" & endRow.ToString).Value.ToString
+                        PIDcode = PIDcode & vbLf & combineRange.Range("A" & endRow.ToString).Value.ToString
                     End If
                     endRow = endRow + 1
                 Else
@@ -202,13 +252,10 @@ Public Class ThisAddIn
             startRow = startRow + 1
             '删除重复行
             If endRow >= startRow Then
-                With combineRange
-                    .Range(.Cells(startRow, 1), .Cells(endRow, .Columns.Count)).Delete(XlDeleteShiftDirection.xlShiftUp)
-                End With
-
+                combineRange.Rows(startRow.ToString & ":" & endRow.ToString).Delete(XlDeleteShiftDirection.xlShiftUp)
             End If
             endRow = startRow + 1
-            If endRow > (combineRange.Rows.Count + 1) Then Exit Do
+            If endRow > (combineRange.Rows.Count + 2) Then Exit Do
 
         Loop
 
