@@ -7,9 +7,12 @@ Public Class 合并数据
 
     End Sub
 
-    Private Sub count_Click(ByVal sender As System.Object, ByVal e As Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs) Handles count.Click
+    Private Sub count_Click(ByVal sender As System.Object, ByVal e As Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs) Handles countPID.Click
         Globals.ThisAddIn.makeOrderList()
     End Sub
 
     
+    Private Sub countPipe_Click(ByVal sender As System.Object, ByVal e As Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs) Handles countPipe.Click
+
+    End Sub
 End Class

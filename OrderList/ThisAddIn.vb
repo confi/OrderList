@@ -13,6 +13,7 @@ Public Class ThisAddIn
 
     End Sub
 
+    '合并仪表阀门清单
     Sub makeOrderList()
         Dim listWorkbook As Workbook
         Dim listWorksheet As Worksheet
@@ -41,7 +42,7 @@ Public Class ThisAddIn
                 Select Case listWorksheet.Name
 
                     Case "设备清单"
-                        listRange = listWorksheet.Range("A9:J" & CStr(lastRow))
+                        listRange = listWorksheet.Range("A9:J" & lastRow.ToString)
                         listWorksheet.Range("A8").Value = "数量"
                         listWorksheet.Range("F8").Value = "编号"
                         listRange.Sort(listRange.Range("C1"), XlSortOrder.xlDescending, , , , , , _
@@ -106,6 +107,15 @@ Public Class ThisAddIn
             End If
 
         Next
+    End Sub
+
+    '合并管道管件清单
+    Sub makePipeLise()
+
+        Dim pipeWorksheet As Worksheet = Me.Application.ActiveSheet
+        Dim strTitle As String() = pipeWorksheet.Range("B6:D6").Value
+
+
     End Sub
 
     'combineRange为需要合并的单元区域，criteriaCol为合并条件列，codeCol为PID编号存储列
@@ -182,7 +192,7 @@ Public Class ThisAddIn
 
     End Sub
 
-    Sub combine1(ByVal combineRange As Range, ByVal criterialCol As String, ByVal codeCol As String)
+    Sub combine1(ByVal combineRange As Range, ByVal criterialCol As String, ByVal codeCol As String, Optional ByVal countTotalCol As Char = "")
 
         Dim startRow As Integer = 1
         Dim endRow As Integer = 2
@@ -223,7 +233,9 @@ Public Class ThisAddIn
                     End If
                     '如果判断数据为空则向下进行比较，对该条记录不予合并。
                     If startValue = "" Or nextValue = "" Then
-                        indicator = False
+                        If i < 2 Then
+                            indicator = False
+                        End If
                     Else
 
                         If startValue <> nextValue Then
@@ -248,8 +260,17 @@ Public Class ThisAddIn
 
             '将PID编号移到codeCol，计数
             combineRange.Range(codeCol & startRow.ToString).Value = PIDcode
-            combineRange.Range("A" & startRow.ToString).Value = endRow - startRow + 1
-            startRow = startRow + 1
+            '如果累计项为空值，则无需累计任何值，只需计数。如累计项不为空，则需累计累计项后填入总计单元。
+            If countTotalCol = "" Then
+                combineRange.Range("A" & startRow.ToString).Value = endRow - startRow + 1
+                startRow = startRow + 1
+            Else
+                Dim total As Double = 0
+                For i As Integer = startRow To endRow
+                    total += combineRange.Range(countTotalCol & i.ToString).Value
+                Next
+                combineRange.Range(countTotalCol & startRow.ToString).Value = total
+            End If
             '删除重复行
             If endRow >= startRow Then
                 combineRange.Rows(startRow.ToString & ":" & endRow.ToString).Delete(XlDeleteShiftDirection.xlShiftUp)

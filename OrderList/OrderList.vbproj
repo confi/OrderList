@@ -252,6 +252,18 @@
     <None Include="ClassDiagram1.cd" />
     <None Include="Resources\logo图.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\network_pipe.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gauge.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gauge1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\instruments.png" />
+  </ItemGroup>
   <!-- Include the build rules for a Visual Basic project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- Include additional build rules for an Office application add-in. -->

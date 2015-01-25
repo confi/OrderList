@@ -60,9 +60,37 @@ Namespace My.Resources
             End Set
         End Property
         
+        Friend ReadOnly Property gauge() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("gauge", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        Friend ReadOnly Property gauge1() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("gauge1", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        Friend ReadOnly Property instruments() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("instruments", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
         Friend ReadOnly Property logo图() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("logo图", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        Friend ReadOnly Property network_pipe() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("network_pipe", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property

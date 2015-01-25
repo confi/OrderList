@@ -43,7 +43,8 @@
     Private Sub InitializeComponent()
         Me.Tab1 = New Microsoft.Office.Tools.Ribbon.RibbonTab
         Me.Group1 = New Microsoft.Office.Tools.Ribbon.RibbonGroup
-        Me.count = New Microsoft.Office.Tools.Ribbon.RibbonButton
+        Me.countPID = New Microsoft.Office.Tools.Ribbon.RibbonButton
+        Me.countPipe = New Microsoft.Office.Tools.Ribbon.RibbonButton
         Me.Tab1.SuspendLayout()
         Me.Group1.SuspendLayout()
         Me.SuspendLayout()
@@ -57,18 +58,27 @@
         '
         'Group1
         '
-        Me.Group1.Items.Add(Me.count)
+        Me.Group1.Items.Add(Me.countPID)
+        Me.Group1.Items.Add(Me.countPipe)
         Me.Group1.Label = "合并数据清单"
         Me.Group1.Name = "Group1"
         '
-        'count
+        'countPID
         '
-        Me.count.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge
-        Me.count.Image = Global.OrderList.My.Resources.Resources.logo图
-        Me.count.ImageName = "AWSlogo"
-        Me.count.Label = "PID清单统计"
-        Me.count.Name = "count"
-        Me.count.ShowImage = True
+        Me.countPID.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge
+        Me.countPID.Image = Global.OrderList.My.Resources.Resources.gauge
+        Me.countPID.ImageName = "AWSlogo"
+        Me.countPID.Label = "PID清单统计"
+        Me.countPID.Name = "countPID"
+        Me.countPID.ShowImage = True
+        '
+        'countPipe
+        '
+        Me.countPipe.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge
+        Me.countPipe.Image = Global.OrderList.My.Resources.Resources.network_pipe
+        Me.countPipe.Label = "合并管道清单"
+        Me.countPipe.Name = "countPipe"
+        Me.countPipe.ShowImage = True
         '
         '合并数据
         '
@@ -85,7 +95,8 @@
 
     Friend WithEvents Tab1 As Microsoft.Office.Tools.Ribbon.RibbonTab
     Friend WithEvents Group1 As Microsoft.Office.Tools.Ribbon.RibbonGroup
-    Friend WithEvents count As Microsoft.Office.Tools.Ribbon.RibbonButton
+    Friend WithEvents countPID As Microsoft.Office.Tools.Ribbon.RibbonButton
+    Friend WithEvents countPipe As Microsoft.Office.Tools.Ribbon.RibbonButton
 End Class
 
 Partial Class ThisRibbonCollection
