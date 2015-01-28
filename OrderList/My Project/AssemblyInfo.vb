@@ -36,8 +36,8 @@ Imports Microsoft.Office.Tools.Excel
 ' 方法是按如下所示使用“*”:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.0.0.0")> 
-<Assembly: AssemblyFileVersion("1.0.0.0")> 
+<Assembly: AssemblyVersion("1.1.0.0")> 
+<Assembly: AssemblyFileVersion("1.1.0.0")> 
 
 ' ExcelLocale1033 属性用于控制传递给 Excel 对象模型的区域设置。
 ' 将 ExcelLocale1033 设置为 true 会使 Excel 对象模型在

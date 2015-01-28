@@ -13,6 +13,6 @@ Public Class 合并数据
 
     
     Private Sub countPipe_Click(ByVal sender As System.Object, ByVal e As Microsoft.Office.Tools.Ribbon.RibbonControlEventArgs) Handles countPipe.Click
-
+        Globals.ThisAddIn.makePipeList()
     End Sub
 End Class

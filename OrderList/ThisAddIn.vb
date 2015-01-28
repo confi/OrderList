@@ -110,11 +110,37 @@ Public Class ThisAddIn
     End Sub
 
     '合并管道管件清单
-    Sub makePipeLise()
+    Sub makePipeList()
 
         Dim pipeWorksheet As Worksheet = Me.Application.ActiveSheet
-        Dim strTitle As String() = pipeWorksheet.Range("B6:D6").Value
+        Dim strTitle As String() = {"管道编号", "名称", "材质", "规格", "数量", "单位"}
+        '检查表格格式，如果不符合预定格式则报错并退出程序。
+        For i As Integer = 0 To strTitle.Length - 1
+            If pipeWorksheet.Cells(6, i + 1) Is Nothing Then
 
+            Else
+                If pipeWorksheet.Cells(6, i + 1).value <> strTitle(i) Then
+                    MsgBox("这不是管道管件清单，无法按管道清单进行合并！请检查表格格式。", MsgBoxStyle.Critical)
+                    Exit Sub
+                End If
+            End If
+
+        Next
+
+        '检测最后一行
+        Dim listRange As Range = detectRange(pipeWorksheet)
+        Dim lastRow As Integer = listRange.Rows.Count
+        listRange = pipeWorksheet.Range("A7:G" & lastRow.ToString)
+        '合并清单
+        With listRange
+            listRange.Sort(.Range("B1"), XlSortOrder.xlAscending, _
+                           .Range("D1"), , XlSortOrder.xlAscending, _
+                           .Range("C1"), XlSortOrder.xlAscending, _
+                           XlYesNoGuess.xlNo, , , XlSortOrientation.xlSortColumns)
+
+        End With
+
+        combine1(listRange, "BDC", "A", "E")
 
     End Sub
 
@@ -192,7 +218,7 @@ Public Class ThisAddIn
 
     End Sub
 
-    Sub combine1(ByVal combineRange As Range, ByVal criterialCol As String, ByVal codeCol As String, Optional ByVal countTotalCol As Char = "")
+    Sub combine1(ByVal combineRange As Range, ByVal criterialCol As String, ByVal codeCol As String, Optional ByVal countTotalCol As String = "")
 
         Dim startRow As Integer = 1
         Dim endRow As Integer = 2
@@ -201,7 +227,7 @@ Public Class ThisAddIn
             Dim indicator As Boolean = True
             Dim PIDcode As String = ""
             '将备注和PID号的内容赋给PIDcode
-            If Not (combineRange.Range(codeCol & startRow.ToString).Value Is Nothing) Then
+            If Not (combineRange.Range(codeCol & startRow.ToString).Value Is Nothing) And countTotalCol = "" Then
                 PIDcode = combineRange.Range(codeCol & startRow.ToString).Value.ToString
             End If
 
@@ -260,10 +286,11 @@ Public Class ThisAddIn
 
             '将PID编号移到codeCol，计数
             combineRange.Range(codeCol & startRow.ToString).Value = PIDcode
+
             '如果累计项为空值，则无需累计任何值，只需计数。如累计项不为空，则需累计累计项后填入总计单元。
             If countTotalCol = "" Then
                 combineRange.Range("A" & startRow.ToString).Value = endRow - startRow + 1
-                startRow = startRow + 1
+
             Else
                 Dim total As Double = 0
                 For i As Integer = startRow To endRow
@@ -271,6 +298,8 @@ Public Class ThisAddIn
                 Next
                 combineRange.Range(countTotalCol & startRow.ToString).Value = total
             End If
+            startRow = startRow + 1
+
             '删除重复行
             If endRow >= startRow Then
                 combineRange.Rows(startRow.ToString & ":" & endRow.ToString).Delete(XlDeleteShiftDirection.xlShiftUp)
